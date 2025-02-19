@@ -16,23 +16,42 @@
         <div class="stock-prices" id="stockPrices"></div>
     </div>
 
+    <script src="static/js/main.js"></script>
     <script>
         // TODO: Initialize the WebSocket connection
         // hint create a new WebSocket object 
+        const ws = new WebSocket(('ws://localhost:8000/ws'))
 
         // TODO: Track previous prices for calculating changes
         // hint create a variable to store the previous prices
+        let previousPrices = {};
 
         // TODO: Implement the message handler
         // update the chart data with new stock prices
         // update the price cards with the new stock prices and the previous prices
-
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                updateChartData(data);
+                updatePriceCards(data, previousPrices);
+                previousPrices = data.stocks;
+            }
+            catch (err) {
+                console.error("Error parsing data:", err);
+            }
+        };
         
         // TODO: Implement error handling
         // print out to console.error if there is an error
+        ws.onerror = error => {
+            console.error("Websocket error:", error);
+        };
 
         // TODO: Implement connection close handling
         // on close, print out to console.log that the connection is closed
+        ws.onclose = () => {
+            console.log("Websocket connection closed!");
+        };
 
         /**
          * 
@@ -82,6 +101,5 @@
             });
         }
     </script>
-    <script src="static/js/main.js"></script>
 </body>
 </html>

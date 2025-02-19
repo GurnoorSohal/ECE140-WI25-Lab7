@@ -46,12 +46,22 @@ async def get():
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     # accept the websocket connection
-
+    await websocket.accept()
     # in a loop, get the new stock prices using get_new_stock_prices()
     # send the new stock prices to the client
     # sleep for 1 second
     # repeat
-    return
+    try:
+        while True:
+            data = get_new_stock_prices()
+            await websocket.send_text(json.dumps(data))
+            await asyncio.sleep(1)
+
+    except Exception as e:
+        print(f"Connection Closed: {e}")
+    finally:
+        await websocket.close()
+    
 
 if __name__ == "__main__":
     import uvicorn
